@@ -1,4 +1,5 @@
 ﻿using KomercioApi.Data;
+using KomercioApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace KomercioApi.Repository
@@ -6,24 +7,24 @@ namespace KomercioApi.Repository
     public interface IListaCompraRepository
     {
         //Select
-        Task<IEnumerable<ListaComprasDTO>> GetListaComprasRepository();
-        Task<IEnumerable<ListaComprasDTO>> GetListaComprasAtivasRepository();
-        Task<IEnumerable<ListaComprasDTO>> GetListaComprasPorIdRepository(int id);
+        Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasRepository();
+        Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasAtivasRepository();
+        Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasPorIdRepository(int id);
 
         //Post
-        Task<ListaComprasDTO> PutAdicionarProdutoNaListaDeComprasRepository(ListaComprasDTO listaComprasDTO);
+        Task<ItensListaComprasDTO> PostAdicionarProdutoNaListaDeComprasRepository(ItensListaComprasDTO listaComprasDTO);
 
         //Update
-        Task<ListaComprasDTO> UpdateAlterarProdutoNaListaDeComprasRepository(ListaComprasDTO listaComprasDTO);
+        Task<ItensListaComprasDTO> UpdateAlterarProdutoNaListaDeComprasRepository(ItensListaComprasDTO listaComprasDTO);
 
     }
 
-    public class ListaCompraRepository : IListaCompraRepository
+    public class ItensListaComprasRepository : IListaCompraRepository
     {
 
         private readonly AppDbContext _appDbContext;
 
-        public ListaCompraRepository(AppDbContext appDbContext)
+        public ItensListaComprasRepository(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
         }
@@ -34,7 +35,7 @@ namespace KomercioApi.Repository
         /// Retorna todas as listas de compras independente do id ou status.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<ListaComprasDTO>> GetListaComprasRepository()
+        public async Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasRepository()
         {
             var lista = await _appDbContext.listadecompras.ToListAsync();
             return lista;
@@ -44,10 +45,10 @@ namespace KomercioApi.Repository
         /// Retorna todas as listas de compras ativas.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<ListaComprasDTO>> GetListaComprasAtivasRepository()
+        public async Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasAtivasRepository()
         {
             var lista = await _appDbContext.listadecompras
-        .Where(x => x.StatusCompra == true)
+        .Where(x => x.StatusItem == true)
         .ToListAsync();
             return lista;
         }
@@ -57,7 +58,7 @@ namespace KomercioApi.Repository
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<ListaComprasDTO>> GetListaComprasPorIdRepository(int id)
+        public async Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasPorIdRepository(int id)
         {
             var lista = await _appDbContext.listadecompras
         .Where(x => x.IdLista == id)
@@ -73,15 +74,15 @@ namespace KomercioApi.Repository
         /// </summary>
         /// <param name="listaComprasDTO"></param>
         /// <returns></returns>
-        public async Task<ListaComprasDTO> PutAdicionarProdutoNaListaDeComprasRepository(ListaComprasDTO listaComprasDTO)
+        public async Task<ItensListaComprasDTO> PostAdicionarProdutoNaListaDeComprasRepository(ItensListaComprasDTO listaComprasDTO)
         {
-            var novaCompra = new ListaComprasDTO
+            var novaCompra = new ItensListaComprasDTO
             {
                 IdLista = listaComprasDTO.IdLista,
                 DescricaoProduto = listaComprasDTO.DescricaoProduto,
                 CodBar = listaComprasDTO.CodBar,
                 Quantidade = listaComprasDTO.Quantidade,
-                StatusCompra = listaComprasDTO.StatusCompra,
+                StatusItem = listaComprasDTO.StatusItem,
                 Obs = listaComprasDTO.Obs
             };
 
@@ -103,7 +104,7 @@ namespace KomercioApi.Repository
         /// <param name="listaComprasDTO"></param>
         /// <returns></returns>
 
-        public async Task<ListaComprasDTO> UpdateAlterarProdutoNaListaDeComprasRepository(ListaComprasDTO listaComprasDTO)
+        public async Task<ItensListaComprasDTO> UpdateAlterarProdutoNaListaDeComprasRepository(ItensListaComprasDTO listaComprasDTO)
         {
             var lista = await _appDbContext.listadecompras.FindAsync(listaComprasDTO.IdItemCompra);
 
@@ -125,7 +126,7 @@ namespace KomercioApi.Repository
         /// <param name="idLista"></param>
         /// <param name="listaComprasDTO"></param>
         /// <returns></returns>
-        public async Task<ListaComprasDTO> UpdateAlterarStatusProdutoNaListaDeComprasRepository(int idLista,ListaComprasDTO listaComprasDTO)
+        public async Task<ItensListaComprasDTO> UpdateAlterarStatusProdutoNaListaDeComprasRepository(int idLista,ItensListaComprasDTO listaComprasDTO)
         {
             var lista = await _appDbContext.listadecompras.FindAsync(idLista);
 
@@ -139,10 +140,6 @@ namespace KomercioApi.Repository
 
             return listaComprasDTO;
         }
-
-
-
-
 
     }
 }

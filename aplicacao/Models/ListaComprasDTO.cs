@@ -1,29 +1,42 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace KomercioApi
+namespace KomercioApi.Models
 {
     public class ListaComprasDTO
-    { 
+    {
         [Key]
-        [Column("id_item_compra")]
-        public int IdItemCompra { get; set; }
         [Column("id_lista")]
-        public int IdLista { get; set; }
-        [Column("descricao_produto")]
-        public string? DescricaoProduto { get; set; }
-        [Column("codbar")]
-        public string? CodBar { get; set; }
-        [Column("quantidade")]
-        public int Quantidade { get; set; }
-        [Column("status_compra")]
-        public bool StatusCompra { get; set; }
-        [Column("obs")]
-        public string? Obs { get; set; }
+        public int IdListaCompra { get; set; }
+        [Column("nome_lista")]
+        public string? NomeDaLista { get; set; }
+        [Column("data_criacao")]
+        public DateTime DataCriacaoLista { get; set; }
+        [Column("status_lista")]
+        public bool StatusLista { get; set; }
+
+         
+        /// <summary>
+        /// Valida a lista de compra (statico para não precisar instanciar).
+        /// </summary>
+        /// <param name="lista"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static ServiceResponse<ListaComprasDTO> ValidaLista(ListaComprasDTO lista)
+        {
+            var response = new ServiceResponse<ListaComprasDTO>();
+
+
+            if (lista == null) throw new ArgumentNullException("Lista invalida!");
+            if (lista.NomeDaLista == null) throw new ArgumentNullException("Nome da lista invalida");
+            if (lista.DataCriacaoLista == null) throw new ArgumentNullException("Data da criação invalida ou inexistente. tente novamente.");
+
+
+            response.Sucesso = true;
+            return response;
+
+        }
+
+
     }
 }
-
-
-

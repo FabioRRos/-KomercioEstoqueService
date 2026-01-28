@@ -1,16 +1,18 @@
-﻿namespace KomercioApi.Interface
+﻿using KomercioApi.Models;
+
+namespace KomercioApi.Interface
 {
     public interface IItensListaComprasService
     {
         // Select
-        Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasService();
-        Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasAtivasService();
-        Task<IEnumerable<ItensListaComprasDTO>> GetListaComprasPorIdService(int id);
+        Task<ServiceResponse<IEnumerable<ItensListaComprasDTO>>> GetListaComprasService();
+        Task<ServiceResponse<IEnumerable<ItensListaComprasDTO>>> GetListaComprasAtivasService();
+        Task<ServiceResponse<IEnumerable<ItensListaComprasDTO>>> GetListaComprasPorIdService(int id);
 
         // Post
-        Task<ItensListaComprasDTO> PostAdicionarProdutoNaListaDeComprasService(ItensListaComprasDTO listaComprasDTO);
+        Task<ServiceResponse<ItensListaComprasDTO>> PostAdicionarProdutoNaListaDeComprasService(ItensListaComprasDTO listaComprasDTO);
 
         // Update
-        Task<ItensListaComprasDTO> UpdateAlterarProdutoNaListaDeComprasService(ItensListaComprasDTO listaComprasDTO);
+        Task<ServiceResponse<ItensListaComprasDTO>> UpdateAlterarProdutoNaListaDeComprasService(ItensListaComprasDTO listaComprasDTO);
     }
 }

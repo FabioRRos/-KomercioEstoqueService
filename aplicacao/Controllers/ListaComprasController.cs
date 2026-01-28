@@ -16,6 +16,8 @@ namespace KomercioApi.Controllers
             _listaComprasService = listaComprasService;
         }
 
+        //POST
+
         [HttpPost]
         public async Task<IActionResult> CriarListaComprasController(ListaComprasDTO listaCompras)
         {
@@ -29,6 +31,7 @@ namespace KomercioApi.Controllers
             return Ok(response);
         }
 
+        //GET
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ListaComprasDTO>>> GetTodasAsListasDeComprasController()
@@ -78,6 +81,8 @@ namespace KomercioApi.Controllers
             return Ok(response);
         }
 
+
+        //PUT
 
         [HttpPut]
         public async Task<ActionResult<ListaComprasDTO>> AlterarListaDeCompraByIdController(ListaComprasDTO listaAtualizada)

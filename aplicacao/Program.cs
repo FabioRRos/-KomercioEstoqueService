@@ -14,6 +14,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddAuthorization();
 
 // Configuração do Banco
+
 var connStr = builder.Configuration.GetConnectionString("ApiBaseUrl");
 builder.Services.AddDbContext<AppDbContext>(options => {
     options.UseNpgsql(connStr)
@@ -21,21 +22,21 @@ builder.Services.AddDbContext<AppDbContext>(options => {
 });
 
 
+// Lista Compras
+builder.Services.AddScoped<IItensListaComprasRepository, ListaComprasRepository>(); 
+builder.Services.AddScoped<IListaComprasService, ListaComprasService>();
 
 // Itens Lista Compras
 builder.Services.AddScoped<IListaCompraRepository, ItensListaComprasRepository>();
 builder.Services.AddScoped<IItensListaComprasService, ItensListaComprasService>();
 
-// Lista Compras
-builder.Services.AddScoped<IItensListaComprasRepository, ListaComprasRepository>(); 
-builder.Services.AddScoped<IListaComprasService, ListaComprasService>();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); // Cria o arquivo .json
-    app.MapScalarApiReference(); // <--- CRIA A TELA VISUAL EM /scalar/v1
+    app.MapOpenApi(); 
+    app.MapScalarApiReference(); 
 }
 
 app.UseHttpsRedirection();

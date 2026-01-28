@@ -11,7 +11,7 @@ pool:
 
 variables:
   DOTNET_VERSION: '10.x'
-  PROJECT_PATH: 'aplicacao/KomercioApi.csproj'
+  PROJECT_PATH: '/KomercioApi.csproj'
   DEPLOY_PATH: '/home/azureuser/komercio/estoque'
 
 stages:

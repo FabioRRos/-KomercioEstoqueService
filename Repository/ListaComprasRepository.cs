@@ -149,7 +149,7 @@ namespace KomercioApi.Repository
             {
                 return listaAtualizada;
             }
-            _appDbContext.Entry(listaAtualizada).CurrentValues.SetValues(listaAtualizada);
+            _appDbContext.Entry(lista).CurrentValues.SetValues(listaAtualizada);
 
             await _appDbContext.SaveChangesAsync();
 

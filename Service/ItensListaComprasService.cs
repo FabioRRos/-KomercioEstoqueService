@@ -59,7 +59,7 @@ namespace KomercioApi.Service
             var response = new ServiceResponse<IEnumerable<ItensListaComprasDTO>>();
 
 
-            if (id >= 0)
+            if (id <= 0)
             {
                 response.Mensagem = "Id invalido, nulo ou inexistente.";
                 response.Sucesso = false;

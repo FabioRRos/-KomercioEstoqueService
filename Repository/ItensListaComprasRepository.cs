@@ -112,7 +112,7 @@ namespace KomercioApi.Repository
             {
                 return listaComprasDTO;
             }
-            _appDbContext.Entry(listaComprasDTO).CurrentValues.SetValues(listaComprasDTO);
+            _appDbContext.Entry(lista).CurrentValues.SetValues(listaComprasDTO);
 
             await _appDbContext.SaveChangesAsync();
 

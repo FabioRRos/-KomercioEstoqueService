@@ -11,7 +11,7 @@ namespace KomercioApi.Models
         [Column("nome_lista")]
         public string? NomeDaLista { get; set; }
         [Column("data_criacao")]
-        public DateTime DataCriacaoLista { get; set; }
+        public DateTimeOffset DataCriacaoLista { get; set; }
         [Column("status_lista")]
         public bool StatusLista { get; set; }
 

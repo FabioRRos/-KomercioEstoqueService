@@ -30,6 +30,20 @@ namespace KomercioApi.Controllers
 
             return Ok(response);
         }
+        //PUT
+
+        [HttpPut]
+        public async Task<ActionResult<ListaComprasDTO>> AlterarListaDeCompraByIdController(ListaComprasDTO listaAtualizada)
+        {
+            var response = await _listaComprasService.AlterarListaDeCompraByIdService(listaAtualizada);
+
+            if (!response.Sucesso)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+
+        }
 
         //GET
 
@@ -80,25 +94,6 @@ namespace KomercioApi.Controllers
             }
             return Ok(response);
         }
-
-
-        //PUT
-
-        [HttpPut]
-        public async Task<ActionResult<ListaComprasDTO>> AlterarListaDeCompraByIdController(ListaComprasDTO listaAtualizada)
-        {
-            var response = await _listaComprasService.AlterarListaDeCompraByIdService(listaAtualizada);
-
-            if (!response.Sucesso)
-            {
-                return BadRequest(response);
-            }
-            return Ok(response);
-
-        }
-
-
-
 
 
 

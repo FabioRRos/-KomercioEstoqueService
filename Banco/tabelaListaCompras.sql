@@ -5,7 +5,7 @@ CREATE TABLE listas (
     status_lista BOOLEAN DEFAULT TRUE -- TRUE = Aberta, FALSE = Finalizada
 );
 
-CREATE TABLE itens_lista (
+CREATE TABLE listadecompras (
     id_item_compra SERIAL PRIMARY KEY,
     id_lista INTEGER NOT NULL,
     descricao_produto VARCHAR(50) NOT NULL,

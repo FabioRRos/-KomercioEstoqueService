@@ -67,7 +67,9 @@ namespace KomercioApi.Repository
         /// <returns></returns>
         public async Task<IEnumerable<ListaComprasDTO>> GetTodasAsListasDeComprasRepository()
         {
-            var response = await _appDbContext.listas.ToListAsync();
+            var response = await _appDbContext.listas
+    .OrderByDescending(x => x.IdListaCompra)
+    .ToListAsync(); 
 
             if (response == null)
             {
@@ -103,7 +105,11 @@ namespace KomercioApi.Repository
         public async Task<IEnumerable<ListaComprasDTO>> GetListasDeComprasAtivas()
         {
             var response = await _appDbContext.listas
-        .Where(x => x.StatusLista == true).ToListAsync();
+    .Where(x => x.StatusLista == true)
+    .OrderByDescending(x => x.IdListaCompra)
+    .ToListAsync();
+
+
 
             if (response == null)
             {

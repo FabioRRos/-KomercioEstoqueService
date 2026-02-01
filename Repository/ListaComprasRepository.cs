@@ -16,6 +16,7 @@ namespace KomercioApi.Repository
         Task<ListaComprasDTO> GetListasDeComprasById(int id);
         Task<IEnumerable<ListaComprasDTO>> GetListasDeComprasAtivas();
         Task<IEnumerable<ListaComprasDTO>> GetListasDeComprasInativas();
+        Task<IEnumerable<ListaComprasDTO>> GetListasDeComprasFinalizadas();
 
         //Post
         Task<ListaComprasDTO> AlterarListaDeCompraById(ListaComprasDTO listaAtualizada);
@@ -44,7 +45,7 @@ namespace KomercioApi.Repository
             {
                 NomeDaLista = novaLista.NomeDaLista,
                 DataCriacaoLista = novaLista.DataCriacaoLista,
-                StatusLista = true
+                //StatusLista = null (padrão do banco é nulo)
 
             };
 
@@ -57,6 +58,8 @@ namespace KomercioApi.Repository
             return novaLista; 
 
         }
+
+
 
 
         //Read (leitura ou GET).
@@ -105,7 +108,7 @@ namespace KomercioApi.Repository
         public async Task<IEnumerable<ListaComprasDTO>> GetListasDeComprasAtivas()
         {
             var response = await _appDbContext.listas
-    .Where(x => x.StatusLista == true)
+    .Where(x => x.StatusLista == null)
     .OrderByDescending(x => x.IdListaCompra)
     .ToListAsync();
 
@@ -137,6 +140,24 @@ namespace KomercioApi.Repository
             return response;
         }
 
+        /// <summary>
+        /// Busca listas fechadas (concluidas ou canceladas)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ListaComprasDTO>> GetListasDeComprasFinalizadas()
+        {
+            var response = await _appDbContext.listas
+        .Where(x => x.StatusLista == true).ToListAsync();
+
+            if (response == null)
+            {
+                return response;// para criar logs depois.
+            }
+
+            return response;
+        }
+
 
 
         //Update
@@ -151,15 +172,14 @@ namespace KomercioApi.Repository
 
             var lista = await _appDbContext.listas.FindAsync(listaAtualizada.IdListaCompra);
 
-            if (lista == null)
-            {
-                return listaAtualizada;
-            }
-            _appDbContext.Entry(lista).CurrentValues.SetValues(listaAtualizada);
+            if (lista == null) return null;
+
+
+            lista.StatusLista = listaAtualizada.StatusLista ;
 
             await _appDbContext.SaveChangesAsync();
 
-            return listaAtualizada;
+            return lista;
 
         }
 

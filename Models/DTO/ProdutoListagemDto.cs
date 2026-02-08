@@ -7,24 +7,21 @@ namespace KomercioApi.Models.DTO
         [JsonPropertyName("id")]
         public int Id { get; init; }
 
-        [JsonPropertyName("nome")]
-        // Se no Go estiver 'product_name', mude aqui para "product_name"
+        [JsonPropertyName("product_name")]
         public string Nome { get; init; } = string.Empty;
 
-        [JsonPropertyName("codigo_barras")]
+        [JsonPropertyName("product_price")]
+        public decimal PrecoVenda { get; init; }
+        [JsonPropertyName("product_codbar")]
         public string CodigoBarras { get; init; } = string.Empty;
 
-        [JsonPropertyName("preco_venda")]
-        public decimal PrecoVenda { get; init; }
-
-        [JsonPropertyName("grupo_id")]
-        public int? GrupoId { get; init; }
+        [JsonPropertyName("product_group")]
+        public string? Grupo { get; init; }
 
         // O campo mágico calculado (Soma dos lotes)
-        [JsonPropertyName("saldo_total")]
+        [JsonPropertyName("product_stock")]
         public int SaldoTotal { get; init; }
-
-        [JsonPropertyName("ativo")]
+        [JsonPropertyName("product_status")]
         public bool Ativo { get; init; }
     }
 }

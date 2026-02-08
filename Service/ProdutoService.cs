@@ -21,6 +21,7 @@ namespace KomercioApi.Service
         {
             return await _context.Produtos
                                  .Where(p => p.Ativo) // Só traz os ativos
+                                 .Include(p => p.Lotes)
                                  .ToListAsync();
         }
         /// <summary>
@@ -49,8 +50,27 @@ namespace KomercioApi.Service
         /// <returns></returns>
         public async Task AtualizarAsync(Produto produto)
         {
+            bool existe = await ExisteCodigoBarrasAsync(produto.CodigoBarras);
+            if (existe)
+            {
+               
+                throw new ($"Já existe um produto cadastrado com o código de barras: {produto.CodigoBarras}");
+            }
+
             _context.Entry(produto).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Serve para buscar o codigo de barras (pra não duplicar)
+        /// </summary>
+        /// <param name="codigoBarras"></param>
+        /// <returns></returns>
+        public async Task<bool> ExisteCodigoBarrasAsync(string codigoBarras)
+        {
+            // Retorna true se encontrar algum produto com esse código
+            return await _context.Produtos
+                .AnyAsync(p => p.CodigoBarras == codigoBarras);
         }
         /// <summary>
         /// Desativar produtos (teoricamente é o delet logico pra não perder histórico).

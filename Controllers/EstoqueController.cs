@@ -30,7 +30,7 @@ namespace KomercioApi.Controllers
             catch (Exception ex)
             {
                 // Em produção, use um logger aqui (ex: Serilog)
-                return BadRequest(new { error = ex.Message });
+                return StatusCode(500,new { error = ex.Message });
             }
         }
 

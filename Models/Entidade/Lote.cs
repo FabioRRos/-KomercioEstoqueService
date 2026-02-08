@@ -7,7 +7,7 @@ namespace KomercioApi.Models.Entidade
     public class Lote
     {
         [Key]
-        [Column("idLote")]
+        [Column("idlote")]
         public int Id { get; set; }
 
         [Column("id_produto")]
@@ -29,7 +29,7 @@ namespace KomercioApi.Models.Entidade
         public string? Observacao { get;set;  }
 
 
-        [ForeignKey("IdProduto")]
+        [ForeignKey("IdProduto")] 
         public Produto? Produto { get; set; }
     }
 }

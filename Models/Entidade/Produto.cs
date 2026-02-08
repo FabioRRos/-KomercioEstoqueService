@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace KomercioApi.Models.Entidade
 {
@@ -19,8 +20,8 @@ namespace KomercioApi.Models.Entidade
         [Column("codigo_barras")]
         public string? CodigoBarras { get; set; }
 
-        [Column("id_grupo")]
-        public int? IdGrupo { get; set; }
+        [Column("grupo")]
+        public string? Grupo { get; set; }
 
         [Column("preco_venda")]
         public decimal PrecoVenda { get; set; } 
@@ -29,6 +30,7 @@ namespace KomercioApi.Models.Entidade
         public bool Ativo { get; set; }
 
         // Relacionamento (Navigation Property)
+        [JsonIgnore]
         public ICollection<Lote> Lotes { get; set; } = new List<Lote>();
     }
 }

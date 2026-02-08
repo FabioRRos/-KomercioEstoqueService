@@ -18,14 +18,27 @@ namespace KomercioApi.Controllers
             _estoqueService = estoqueService;
         }
 
-        // GET: api/produtos
+        // GET: api/produtos (ok no go)
         // Retorna a lista para o Grid JÁ COM O SALDO SOMADO (Via DTO)
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProdutoListagemDto>>> ListarTodos()
-        {
-            // Este método no service deve fazer a projeção (Select) somando os lotes
-            var produtos = await _produtoService.ObterTodosAsync();
-            return Ok(produtos);
+        {// 1. Busca os protudos do banco (vem com todos os dados)
+            var produtosEntidade = await _produtoService.ObterTodosAsync();
+
+            // 2.(Converte Entidade -> DTO)
+            var produtosDto = produtosEntidade.Select(p => new ProdutoListagemDto
+            {
+                Id = p.Id,
+                Nome = p.Nome,
+                PrecoVenda = p.PrecoVenda,
+                CodigoBarras = p.CodigoBarras,
+                Grupo = p.Grupo,
+                // O LINQ soma a coluna 'QuantidadeAtual' de todos os lotes deste produto
+                SaldoTotal = p.Lotes != null ? p.Lotes.Sum(l => l.QuantidadeAtual) : 0,
+                Ativo = p.Ativo
+            });
+
+            return Ok(produtosDto);
         }
 
         // GET: api/produtos/5
@@ -48,12 +61,35 @@ namespace KomercioApi.Controllers
 
         // POST: api/produtos
         [HttpPost]
-        public async Task<ActionResult> Criar([FromBody] Produto produto)
+        public async Task<ActionResult> Criar([FromBody] CriarProdutoDto dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            await _produtoService.AdicionarAsync(produto);
-            return CreatedAtAction(nameof(ObterPorId), new { id = produto.Id }, produto);
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                // Mapeamento DTO -> Entidade
+                var novoProduto = new Produto
+                {
+                    Nome = dto.Nome,
+                    Descricao = dto.Descricao,
+                    CodigoBarras = dto.CodigoBarras,
+                    Grupo = dto.Grupo, 
+                    PrecoVenda = dto.PrecoVenda,
+                    Ativo = dto.Ativo
+                };
+
+
+                await _produtoService.AdicionarAsync(novoProduto);
+
+                return CreatedAtAction(nameof(ObterPorId), new { id = novoProduto.Id }, novoProduto);
+            }
+            catch (Exception ex)
+            {
+                // Retorna 400 Bad Request com a sua frase personalizada
+                return BadRequest(new { mensagem = ex.Message });
+            }
+
         }
 
         // PUT: api/produtos/5

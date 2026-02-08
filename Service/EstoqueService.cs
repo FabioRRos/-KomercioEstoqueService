@@ -31,15 +31,27 @@ namespace KomercioApi.Service
                 QuantidadeOriginal = dto.Quantidade, //A quantidade de entrada em estoque é a mesma.
                 QuantidadeAtual = dto.Quantidade, // quantidade do contador. Depois com a venda vou tirando.
                 PrecoCompra = dto.PrecoCusto,
-                DataEntrada = DateTime.Now,
+                DataEntrada = DateTime.UtcNow,
                 Observacao = $"NF: {dto.NumeroNota}"
             };
 
             _context.Lotes.Add(novoLote);
 
-            
+
             //O ID do lote só existe após o SaveChanges, então salvamos em duas etapas ou usamos transação
-            await _context.SaveChangesAsync();
+            try
+            {
+                // AQUI É A HORA DA VERDADE
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Isso pega o erro original do PostgreSQL (Ex: "column 'precocompra' does not exist")
+                var mensagemBanco = ex.InnerException?.Message ?? ex.Message;
+
+                // Joga o erro na tela do  Swagger. IMPORTANTE!!! Barrar esse erro no golang.
+                throw new Exception($"ERRO DETALHADO DO BANCO: {mensagemBanco}");
+            }
 
             var movimento = new Movimentacao
             {
@@ -49,7 +61,7 @@ namespace KomercioApi.Service
                 Quantidade = dto.Quantidade,
                 ValorUnitario = dto.PrecoCusto,
                 IdReferencia = dto.NumeroNota,
-                DataMovimentacao = DateTime.Now
+                DataMovimentacao = DateTime.UtcNow
             };
 
             _context.Movimentacoes.Add(movimento);
@@ -95,7 +107,7 @@ namespace KomercioApi.Service
                         Quantidade = -qtdBaixar, // Negativo na saída
                         ValorUnitario = lote.PrecoCompra, // Mantém o custo histórico (Importante para lucro!)
                         IdReferencia = idVenda,
-                        DataMovimentacao = DateTime.Now
+                        DataMovimentacao = DateTime.UtcNow
                     };
                     _context.Movimentacoes.Add(movimento);
 
@@ -157,7 +169,7 @@ namespace KomercioApi.Service
                 QuantidadeOriginal = quantidade,
                 QuantidadeAtual = quantidade,
                 PrecoCompra = custoConsiderado, // <--- Aqui entra o valor corrigido
-                DataEntrada = DateTime.Now,
+                DataEntrada = DateTime.UtcNow,
                 Observacao = $"Devolução Venda {idVendaOriginal} (Ref: {(movimentoOriginal == null ? "Custo Atual" : "Custo Original")})"
             };
 
@@ -173,7 +185,7 @@ namespace KomercioApi.Service
                 Quantidade = quantidade,
                 ValorUnitario = custoConsiderado,
                 IdReferencia = idVendaOriginal,
-                DataMovimentacao = DateTime.Now
+                DataMovimentacao = DateTime.UtcNow
             };
 
             _context.Movimentacoes.Add(mov);

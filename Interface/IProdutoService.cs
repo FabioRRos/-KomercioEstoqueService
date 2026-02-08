@@ -9,7 +9,8 @@ namespace KomercioApi.Interface
         Task<Produto?> ObterPorIdAsync(int id);
         Task AdicionarAsync(Produto produto);
         Task AtualizarAsync(Produto produto);
-        Task DeativarAsync(int id); 
+        Task DeativarAsync(int id);
+        Task<bool> ExisteCodigoBarrasAsync(string codigoBarras);
     }
     public interface IEstoqueService
     {

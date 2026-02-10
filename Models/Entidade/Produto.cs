@@ -9,24 +9,35 @@ namespace KomercioApi.Models.Entidade
     {
         [Key]
         [Column("idproduto")]
+        [JsonPropertyName("id")]
         public int Id { get; set; }
 
         [Column("nomeproduto")]
+        [JsonPropertyName("product_name")]
+
         public string Nome { get; set; } = string.Empty;
 
         [Column("descricaoproduto")]
         public string? Descricao { get; set; }
 
         [Column("codigo_barras")]
+        [JsonPropertyName("product_codbar")]
+
         public string? CodigoBarras { get; set; }
 
         [Column("grupo")]
+        [JsonPropertyName("product_group")]
+
         public string? Grupo { get; set; }
 
         [Column("preco_venda")]
+        [JsonPropertyName("product_price")]
+
         public decimal PrecoVenda { get; set; } 
 
         [Column("ativo")]
+        [JsonPropertyName("product_status")]
+
         public bool Ativo { get; set; }
 
         // Relacionamento (Navigation Property)

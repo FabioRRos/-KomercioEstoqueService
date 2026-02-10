@@ -41,11 +41,20 @@ namespace KomercioApi.Controllers
             return Ok(produtosDto);
         }
 
-        // GET: api/produtos/5
+        // GET: api/produtos//5
         [HttpGet("{id}")]
         public async Task<ActionResult<Produto>> ObterPorId(int id)
         {
             var produto = await _produtoService.ObterPorIdAsync(id);
+            if (produto == null) return NotFound();
+            return Ok(produto);
+        }
+
+        // GET: api/produtos/5
+        [HttpGet("cod/{cod}")]
+        public async Task<ActionResult<ProdutoVendaDTO>> ObterPorcod(string cod)
+        {
+            var produto = await _produtoService.ObterPorCodigosync(cod);
             if (produto == null) return NotFound();
             return Ok(produto);
         }

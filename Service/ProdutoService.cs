@@ -1,5 +1,6 @@
 ﻿using KomercioApi.Data;
 using KomercioApi.Interface;
+using KomercioApi.Models.DTO;
 using KomercioApi.Models.Entidade;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +33,30 @@ namespace KomercioApi.Service
         public async Task<Produto?> ObterPorIdAsync(int id)
         {
             return await _context.Produtos.FindAsync(id);
+        }
+
+        /// <summary>
+        /// GET por código de barras.
+        /// </summary>
+        /// <param name="codigo"></param>
+        /// <returns></returns>
+        public async Task<ProdutoVendaDTO?> ObterPorCodigosync(string codigo)
+        {
+            return await _context.Produtos
+        .Where(p => p.CodigoBarras == codigo)
+        .Select(p => new ProdutoVendaDTO
+        {
+            Id = p.Id,
+            Nome = p.Nome,
+            Preco = p.PrecoVenda,
+            CodigoBarras = p.CodigoBarras,
+            Grupo = p.Grupo,
+            SaldoDisponivel = _context.Lotes
+                .Where(l => l.Id == p.Id && l.QuantidadeAtual > 0)
+                .Sum(l => (int?)l.QuantidadeAtual) ?? 0,
+            Status = p.Ativo
+        })
+        .FirstOrDefaultAsync();
         }
         /// <summary>
         /// Adiciona produtos ao estoque (Vulgo entrada estoque)

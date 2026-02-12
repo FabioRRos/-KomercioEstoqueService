@@ -6,8 +6,8 @@ namespace KomercioApi.Models.DTO
     public class RegistrarEntradaDto
     {
         [Required]
-        [JsonPropertyName("produto_id")]
-        public int ProdutoId { get; init; }
+        [JsonPropertyName("CodBar")]
+        public string? CodigoBarras { get; init; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "A quantidade deve ser maior que zero")]
@@ -22,5 +22,6 @@ namespace KomercioApi.Models.DTO
         [Required]
         [JsonPropertyName("numero_nota")]
         public string NumeroNota { get; init; } = string.Empty;
+
     }
 }

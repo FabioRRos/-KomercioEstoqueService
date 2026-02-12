@@ -29,6 +29,6 @@ namespace KomercioApi.Models.Entidade
         public string? IdReferencia { get; set; }
 
         [Column("data_movimentacao")]
-        public DateTime DataMovimentacao { get; set; } = DateTime.Now;
+        public DateTimeOffset DataMovimentacao { get; set; } = DateTimeOffset.UtcNow;
     }
 }

@@ -23,7 +23,7 @@ namespace KomercioApi.Models.Entidade
         public int QuantidadeAtual { get; set; }
 
         [Column("data_entrada")]
-        public DateTime DataEntrada { get; set; }
+        public DateTimeOffset DataEntrada { get; set; }
 
         [Column("observacao")]
         public string? Observacao { get;set;  }

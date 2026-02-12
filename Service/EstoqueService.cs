@@ -25,13 +25,22 @@ namespace KomercioApi.Service
         /// <returns></returns>
         public async Task RegistrarEntradaAsync(RegistrarEntradaDto dto)
         {
+            var produtoId = await _context.Produtos
+    .Where(p => p.CodigoBarras == dto.CodigoBarras)
+    .Select(p => p.Id)
+    .FirstOrDefaultAsync();
+
+
+            if (produtoId == 0)
+                throw new Exception("Produto não encontrado.");
+
             var novoLote = new Lote
             {
-                IdProduto = dto.ProdutoId,
+                IdProduto = produtoId,
                 QuantidadeOriginal = dto.Quantidade, //A quantidade de entrada em estoque é a mesma.
                 QuantidadeAtual = dto.Quantidade, // quantidade do contador. Depois com a venda vou tirando.
                 PrecoCompra = dto.PrecoCusto,
-                DataEntrada = DateTime.UtcNow,
+                DataEntrada = DateTimeOffset.UtcNow,
                 Observacao = $"NF: {dto.NumeroNota}"
             };
 
@@ -41,7 +50,7 @@ namespace KomercioApi.Service
             //O ID do lote só existe após o SaveChanges, então salvamos em duas etapas ou usamos transação
             try
             {
-                // AQUI É A HORA DA VERDADE
+                // AQUI É A HORA DA VERDADE, OREMOS!
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException ex)
@@ -55,13 +64,13 @@ namespace KomercioApi.Service
 
             var movimento = new Movimentacao
             {
-                IdProduto = dto.ProdutoId,
+                IdProduto = produtoId,
                 IdLote = novoLote.Id,
                 Tipo = "COMPRA", // Entrada de Estoque
                 Quantidade = dto.Quantidade,
                 ValorUnitario = dto.PrecoCusto,
                 IdReferencia = dto.NumeroNota,
-                DataMovimentacao = DateTime.UtcNow
+                DataMovimentacao = DateTimeOffset.UtcNow
             };
 
             _context.Movimentacoes.Add(movimento);
@@ -98,7 +107,6 @@ namespace KomercioApi.Service
                     lote.QuantidadeAtual -= qtdBaixar;
                     _context.Lotes.Update(lote);
 
-                    // Gera Movimentação de Saída
                     var movimento = new Movimentacao
                     {
                         IdProduto = produtoId,
@@ -107,7 +115,7 @@ namespace KomercioApi.Service
                         Quantidade = -qtdBaixar, // Negativo na saída
                         ValorUnitario = lote.PrecoCompra, // Mantém o custo histórico (Importante para lucro!)
                         IdReferencia = idVenda,
-                        DataMovimentacao = DateTime.UtcNow
+                        DataMovimentacao = DateTimeOffset.UtcNow
                     };
                     _context.Movimentacoes.Add(movimento);
 
@@ -117,7 +125,16 @@ namespace KomercioApi.Service
                 if (qtdRestante > 0)
                     throw new Exception($"Estoque insuficiente! Faltam {qtdRestante} unidades.");
 
+                try
+                {
+
                 await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                     throw new Exception($"errei aqui >> {ex.InnerException?.Message}");
+                }
+
                 await transaction.CommitAsync();
             }
             catch
@@ -169,7 +186,7 @@ namespace KomercioApi.Service
                 QuantidadeOriginal = quantidade,
                 QuantidadeAtual = quantidade,
                 PrecoCompra = custoConsiderado, // <--- Aqui entra o valor corrigido
-                DataEntrada = DateTime.UtcNow,
+                DataEntrada = DateTimeOffset.UtcNow,
                 Observacao = $"Devolução Venda {idVendaOriginal} (Ref: {(movimentoOriginal == null ? "Custo Atual" : "Custo Original")})"
             };
 
@@ -185,7 +202,7 @@ namespace KomercioApi.Service
                 Quantidade = quantidade,
                 ValorUnitario = custoConsiderado,
                 IdReferencia = idVendaOriginal,
-                DataMovimentacao = DateTime.UtcNow
+                DataMovimentacao = DateTimeOffset.UtcNow
             };
 
             _context.Movimentacoes.Add(mov);

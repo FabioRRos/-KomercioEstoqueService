@@ -62,7 +62,7 @@ namespace KomercioApi.Service
         /// Adiciona produtos ao estoque (Vulgo entrada estoque)
         /// </summary>
         /// <param name="produto"></param>
-        /// <returns></returns>
+        /// <returns></returns>"
         public async Task AdicionarAsync(Produto produto)
         {
             _context.Produtos.Add(produto);

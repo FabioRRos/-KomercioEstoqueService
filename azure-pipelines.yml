@@ -10,7 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  DOTNET_VERSION: '10.x'
+  DOTNET_VERSION: '8.x'
   PROJECT_PATH: 'KomercioApi.csproj'
   DEPLOY_PATH: '/home/azureuser/komercio/estoque'
 
@@ -21,13 +21,38 @@ stages:
   - job: BuildJob
     displayName: Compilar Estoque Service
     steps:
+
     - task: UseDotNet@2
       displayName: 'Instalar .NET $(DOTNET_VERSION)'
       inputs:
         version: $(DOTNET_VERSION)
 
+ 
+    - task: SonarQubePrepare@8
+      inputs:
+        SonarQube: 'Sonar'
+        scannerMode: 'dotnet'
+        projectKey: 'komercio-Sonar'
+        projectName: 'Komercio'
+
+
     - script: |
         dotnet restore $(PROJECT_PATH)
+        dotnet build $(PROJECT_PATH) -c Release
+      displayName: 'Executar Build'
+
+  
+    - task: SonarQubeAnalyze@8
+      inputs:
+        jdkversion: 'JAVA_HOME_17_X64'
+
+ 
+    - task: SonarQubePublish@8
+      inputs:
+        pollingTimeoutSec: '300'
+
+
+    - script: |
         dotnet publish $(PROJECT_PATH) -c Release -o $(Build.ArtifactStagingDirectory)/publish
       displayName: 'Executar Dotnet Publish'
 
@@ -36,40 +61,3 @@ stages:
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)/publish
         artifact: estoque_drop
-
-- stage: Deploy
-  displayName: Deploy para VM
-  dependsOn: Build
-  jobs:
-  - job: DeployJob
-    steps:
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        artifactName: estoque_drop
-        targetPath: $(Pipeline.Workspace)/estoque_drop
-
-    - task: SSH@0
-      displayName: Parar serviço atual
-      inputs:
-        sshEndpoint: Komercio-API-VM
-        runOptions: inline
-        inline: |
-          sudo systemctl stop komercio-estoque || true
-
-    - task: CopyFilesOverSSH@0
-      displayName: Transferir arquivos
-      inputs:
-        sshEndpoint: Komercio-API-VM
-        sourceFolder: $(Pipeline.Workspace)/estoque_drop
-        contents: '**'
-        targetFolder: $(DEPLOY_PATH)
-        cleanTargetFolder: true
-
-    - task: SSH@0
-      displayName: Iniciar serviço
-      inputs:
-        sshEndpoint: Komercio-API-VM
-        runOptions: inline
-        inline: |
-          sudo systemctl start komercio-estoque
-          sudo systemctl status komercio-estoque --no-pager

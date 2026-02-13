@@ -32,7 +32,7 @@ stages:
       inputs:
         SonarCloud: 'KomercioEstoqueService'    # Nome exato da sua conexão
         organization: 'komercio'
-        scannerMode: 'MSBuild'
+        scannerMode: 'dotnet'
         projectKey: 'Komercio_KomercioEstoqueService'
         projectName: 'KomercioEstoqueService'
         extraProperties: |

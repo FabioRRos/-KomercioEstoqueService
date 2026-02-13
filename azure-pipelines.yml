@@ -30,7 +30,7 @@ stages:
     - task: SonarCloudPrepare@4
       displayName: '🔍 Preparar Análise Sonar'
       inputs:
-        SonarQube: 'KomercioEstoqueService'    # Nome exato da sua conexão
+        SonarCloud: 'KomercioEstoqueService'    # Nome exato da sua conexão
         organization: 'komercio'
         scannerMode: 'MSBuild'
         projectKey: 'Komercio_KomercioEstoqueService'

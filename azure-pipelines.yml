@@ -10,7 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  DOTNET_VERSION: '8.x'  # ⚠️ Voltei para 8.x (10.x ainda não existe/é instável). Se precisar do 9, use '9.x'.
+  DOTNET_VERSION: '10.x'
   PROJECT_PATH: 'KomercioApi.csproj'
   DEPLOY_PATH: '/home/azureuser/komercio/estoque'
 

@@ -10,7 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  DOTNET_VERSION: '8.x'
+  DOTNET_VERSION: '8.x'  # ⚠️ Voltei para 8.x (10.x ainda não existe/é instável). Se precisar do 9, use '9.x'.
   PROJECT_PATH: 'KomercioApi.csproj'
   DEPLOY_PATH: '/home/azureuser/komercio/estoque'
 
@@ -21,43 +21,95 @@ stages:
   - job: BuildJob
     displayName: Compilar Estoque Service
     steps:
-
     - task: UseDotNet@2
       displayName: 'Instalar .NET $(DOTNET_VERSION)'
       inputs:
         version: $(DOTNET_VERSION)
 
- 
-    - task: SonarQubePrepare@8
+    # 1. PREPARAR O SONAR (Antes do Build)
+    - task: SonarCloudPrepare@4
+      displayName: '🔍 Preparar Análise Sonar'
       inputs:
-        SonarQube: 'Sonar'
-        scannerMode: 'dotnet'
-        projectKey: 'komercio-Sonar'
-        projectName: 'Komercio'
+        SonarQube: 'KomercioEstoqueService'    # Nome exato da sua conexão
+        organization: 'komercio'
+        scannerMode: 'MSBuild'
+        projectKey: 'Komercio_KomercioEstoqueService'
+        projectName: 'KomercioEstoqueService'
+        extraProperties: |
+          sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
 
-
+    # 2. RESTORE E BUILD
     - script: |
         dotnet restore $(PROJECT_PATH)
-        dotnet build $(PROJECT_PATH) -c Release
-      displayName: 'Executar Build'
+        dotnet build $(PROJECT_PATH) -c Release --no-restore
+      displayName: '🛠 Compilar (Build)'
 
-  
-    - task: SonarQubeAnalyze@8
-      inputs:
-        jdkversion: 'JAVA_HOME_17_X64'
+    # 3. TESTES (Necessário para o Sonar calcular cobertura)
+    - script: |
+        dotnet test $(PROJECT_PATH) \
+        -c Release \
+        --no-build \
+        --collect:"XPlat Code Coverage" \
+        -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      displayName: '🧪 Executar Testes'
 
- 
-    - task: SonarQubePublish@8
+    # 4. ENVIAR ANÁLISE (Depois dos testes)
+    - task: SonarCloudAnalyze@4
+      displayName: '📤 Enviar Análise ao Sonar'
+
+    # 5. VERIFICAR QUALITY GATE
+    - task: SonarCloudPublish@4
+      displayName: '📊 Publicar Resultado do Gate'
       inputs:
         pollingTimeoutSec: '300'
 
-
+    # 6. PUBLICAR (Gerar executável final)
     - script: |
-        dotnet publish $(PROJECT_PATH) -c Release -o $(Build.ArtifactStagingDirectory)/publish
-      displayName: 'Executar Dotnet Publish'
+        dotnet publish $(PROJECT_PATH) -c Release --no-build -o $(Build.ArtifactStagingDirectory)/publish
+      displayName: '🚀 Gerar Binários (Publish)'
 
     - task: PublishPipelineArtifact@1
       displayName: 'Gerar Artefato'
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)/publish
         artifact: estoque_drop
+
+- stage: Deploy
+  displayName: Deploy para VM
+  dependsOn: Build
+  jobs:
+  - job: DeployJob
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifactName: estoque_drop
+        targetPath: $(Pipeline.Workspace)/estoque_drop
+
+    - task: SSH@0
+      displayName: Parar serviço atual
+      inputs:
+        sshEndpoint: Komercio-API-VM
+        runOptions: inline
+        inline: |
+          sudo systemctl stop komercio-estoque || true
+
+    - task: CopyFilesOverSSH@0
+      displayName: Transferir arquivos
+      inputs:
+        sshEndpoint: Komercio-API-VM
+        sourceFolder: $(Pipeline.Workspace)/estoque_drop
+        contents: '**'
+        targetFolder: $(DEPLOY_PATH)
+        cleanTargetFolder: false   # MUDADO PARA FALSE (Segurança: não apaga configs da pasta)
+        overwrite: true            # Garante que os novos arquivos substituam os velhos
+
+    - task: SSH@0
+      displayName: Iniciar serviço
+      inputs:
+        sshEndpoint: Komercio-API-VM
+        runOptions: inline
+        inline: |
+          sudo systemctl start komercio-estoque
+          sudo systemctl status komercio-estoque --no-pager
+
+

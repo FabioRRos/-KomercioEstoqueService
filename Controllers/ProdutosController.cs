@@ -105,10 +105,21 @@ namespace KomercioApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Atualizar(int id, [FromBody] Produto produto)
         {
-            if (id != produto.Id) return BadRequest("ID do corpo difere do ID da URL");
+            try
+            {
+                if (id != produto.Id) return BadRequest("ID do corpo difere do ID da URL");
 
-            await _produtoService.AtualizarAsync(produto);
-            return NoContent();
+                await _produtoService.AtualizarAsync(produto);
+
+                return StatusCode(200, produto);
+            }
+            catch
+            {
+                return NoContent();
+            }
+           
+
+            
         }
 
         // DELETE: api/produtos/5

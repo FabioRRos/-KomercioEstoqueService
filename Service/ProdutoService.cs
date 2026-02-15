@@ -75,12 +75,12 @@ namespace KomercioApi.Service
         /// <returns></returns>
         public async Task AtualizarAsync(Produto produto)
         {
-            bool existe = await ExisteCodigoBarrasAsync(produto.CodigoBarras);
-            if (existe)
-            {
+          //  bool existe = await ExisteCodigoBarrasAsync(produto.CodigoBarras);
+         //   if (existe)
+          //  {
                
-                throw new ($"Já existe um produto cadastrado com o código de barras: {produto.CodigoBarras}");
-            }
+         //       throw new ($"Já existe um produto cadastrado com o código de barras: {produto.CodigoBarras}");
+         //   }
 
             _context.Entry(produto).State = EntityState.Modified;
             await _context.SaveChangesAsync();

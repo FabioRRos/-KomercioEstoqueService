@@ -15,7 +15,7 @@ namespace KomercioApi.Models.DTO
         public int Quantidade { get; init; }
 
         [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "O preço de custo deve ser maior que zero")]
+       /// [Range(0.01, double.MaxValue, ErrorMessage = "O preço de custo deve ser maior que zero")]
         [JsonPropertyName("preco_custo")]
         public decimal PrecoCusto { get; init; }
 

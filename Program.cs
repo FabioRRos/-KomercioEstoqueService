@@ -2,7 +2,6 @@ using KomercioApi.Data;
 using KomercioApi.Interface; 
 using KomercioApi.Repository;
 using KomercioApi.Service;
-using KomercioApi.Service;  
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore; 
 
@@ -29,6 +28,10 @@ builder.Services.AddScoped<IListaComprasService, ListaComprasService>();
 // Itens Lista Compras
 builder.Services.AddScoped<IListaCompraRepository, ItensListaComprasRepository>();
 builder.Services.AddScoped<IItensListaComprasService, ItensListaComprasService>();
+
+// Produtos e estoque
+builder.Services.AddScoped<IProdutoService, ProdutoService>();
+builder.Services.AddScoped<IEstoqueService, EstoqueService>();
 
 
 var app = builder.Build();

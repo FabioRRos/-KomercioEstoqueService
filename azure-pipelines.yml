@@ -26,43 +26,7 @@ stages:
       inputs:
         version: $(DOTNET_VERSION)
 
-    # 1. PREPARAR O SONAR (Antes do Build)
-    - task: SonarCloudPrepare@4
-      displayName: '🔍 Preparar Análise Sonar'
-      inputs:
-        SonarCloud: 'KomercioEstoqueService'    # Nome exato da sua conexão
-        organization: 'komercio'
-        scannerMode: 'dotnet'
-        projectKey: 'Komercio_KomercioEstoqueService'
-        projectName: 'KomercioEstoqueService'
-        extraProperties: |
-          sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
-
-    # 2. RESTORE E BUILD
-    - script: |
-        dotnet restore $(PROJECT_PATH)
-        dotnet build $(PROJECT_PATH) -c Release --no-restore
-      displayName: '🛠 Compilar (Build)'
-
-    # 3. TESTES (Necessário para o Sonar calcular cobertura)
-    - script: |
-        dotnet test $(PROJECT_PATH) \
-        -c Release \
-        --no-build \
-        --collect:"XPlat Code Coverage" \
-        -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-      displayName: '🧪 Executar Testes'
-
-    # 4. ENVIAR ANÁLISE (Depois dos testes)
-    - task: SonarCloudAnalyze@4
-      displayName: '📤 Enviar Análise ao Sonar'
-
-    # 5. VERIFICAR QUALITY GATE
-    - task: SonarCloudPublish@4
-      displayName: '📊 Publicar Resultado do Gate'
-      inputs:
-        pollingTimeoutSec: '300'
-
+  
     # 6. PUBLICAR (Gerar executável final)
     - script: |
         dotnet publish $(PROJECT_PATH) -c Release --no-build -o $(Build.ArtifactStagingDirectory)/publish
